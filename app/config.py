@@ -1,7 +1,7 @@
 # app/config.py
 
 from pydantic_settings import BaseSettings
-from typing import Optional
+from urllib.parse import quote_plus
 
 
 class Settings(BaseSettings):
@@ -24,8 +24,9 @@ class Settings(BaseSettings):
 
     @property
     def database_url(self) -> str:
+        password = quote_plus(self.db_password)
         return (
-            f"mysql+pymysql://{self.db_user}:{self.db_password}"
+            f"mysql+pymysql://{self.db_user}:{password}"
             f"@{self.db_host}:{self.db_port}/{self.db_name}"
         )
 
