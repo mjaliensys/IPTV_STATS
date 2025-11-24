@@ -17,19 +17,19 @@ class StreamEvent(BaseModel):
     server: str
     media: str  # Channel name
 
-    # User info
-    user_id: str
-    user_name: str
-    ip: str
-    country: str
-    user_agent: str
+    # User info (optional - may not be present)
+    user_id: Optional[str] = None
+    user_name: Optional[str] = None
+    ip: Optional[str] = None
+    country: Optional[str] = "XX"
+    user_agent: Optional[str] = ""
 
-    # Stream details
-    proto: str
-    bytes: int
-    token: str
-    source_id: str
-    query_string: str
+    # Stream details (optional)
+    proto: Optional[str] = "unknown"
+    bytes: int = 0
+    token: Optional[str] = None
+    source_id: Optional[str] = None
+    query_string: Optional[str] = None
 
     # Timing
     opened_at: int  # Unix ms

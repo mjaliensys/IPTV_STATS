@@ -55,9 +55,9 @@ class ActiveSessionsManager:
             id=event_data["id"],
             server=event_data["server"],
             media=event_data["media"],
-            user_id=event_data["user_id"],
-            country=event_data["country"],
-            proto=event_data["proto"],
+            user_id=event_data.get("user_id") or event_data["id"],
+            country=event_data.get("country") or "XX",
+            proto=event_data.get("proto") or "unknown",
             user_agent_class=user_agent_class,
             bytes=event_data.get("bytes", 0),
             opened_at=event_data["opened_at"],
@@ -111,16 +111,20 @@ class ActiveSessionsManager:
             else:
                 # Session not found - still count the close event
                 user_agent_class = classify_user_agent_cached(event_data.get("user_agent", ""))
+                user_id = event_data.get("user_id") or event_data["id"]
+                country = event_data.get("country") or "XX"
+                proto = event_data.get("proto") or "unknown"
+
                 self._minute_closed += 1
                 self._minute_bytes += event_data.get("bytes", 0)
-                self._minute_unique_users.add(event_data["user_id"])
+                self._minute_unique_users.add(user_id)
 
                 # Update dimension stats
-                self._get_dimension_stats(self._minute_by_server, event_data["server"]).add_closed(event_data["user_id"], event_data.get("bytes", 0), 0)
-                self._get_dimension_stats(self._minute_by_channel, event_data["media"]).add_closed(event_data["user_id"], event_data.get("bytes", 0), 0)
-                self._get_dimension_stats(self._minute_by_country, event_data["country"]).add_closed(event_data["user_id"], event_data.get("bytes", 0), 0)
-                self._get_dimension_stats(self._minute_by_protocol, event_data["proto"]).add_closed(event_data["user_id"], event_data.get("bytes", 0), 0)
-                self._get_dimension_stats(self._minute_by_user_agent, user_agent_class).add_closed(event_data["user_id"], event_data.get("bytes", 0), 0)
+                self._get_dimension_stats(self._minute_by_server, event_data["server"]).add_closed(user_id, event_data.get("bytes", 0), 0)
+                self._get_dimension_stats(self._minute_by_channel, event_data["media"]).add_closed(user_id, event_data.get("bytes", 0), 0)
+                self._get_dimension_stats(self._minute_by_country, country).add_closed(user_id, event_data.get("bytes", 0), 0)
+                self._get_dimension_stats(self._minute_by_protocol, proto).add_closed(user_id, event_data.get("bytes", 0), 0)
+                self._get_dimension_stats(self._minute_by_user_agent, user_agent_class).add_closed(user_id, event_data.get("bytes", 0), 0)
 
     def get_and_reset_minute_stats(self) -> dict:
         """
